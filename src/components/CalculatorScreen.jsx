@@ -9,48 +9,76 @@ export default function CalculatorScreen() {
     homeAvgGoalsScored: '',
     homeAvgGoalsConceded: '',
     homeLast5Form: '',
-    homeLast5Goals: '',
     awayTeam: '',
     awayAvgGoalsScored: '',
     awayAvgGoalsConceded: '',
     awayLast5Form: '',
-    awayLast5Goals: '',
   });
 
   const handleChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // This is a placeholder for the ML model logic.
-  const getPrediction = () => {
+  // ===================================================================
+  // NEW SMARTER PREDICTION LOGIC
+  // ===================================================================
+  const getSmarterPrediction = () => {
     setLoading(true);
+    setPrediction(null);
+
+    // Helper function to calculate a team's form score (W=3, D=1, L=0)
+    const getFormScore = (formString) => {
+      let score = 0;
+      for (const char of formString.toUpperCase()) {
+        if (char === 'W') score += 3;
+        if (char === 'D') score += 1;
+      }
+      return score;
+    };
+
+    // Calculate Power Ratings
+    const homeFormScore = getFormScore(formData.homeLast5Form);
+    const awayFormScore = getFormScore(formData.awayLast5Form);
+
+    const homePower = (parseFloat(formData.homeAvgGoalsScored) * 1.5) - parseFloat(formData.homeAvgGoalsConceded) + (homeFormScore * 0.2);
+    const awayPower = (parseFloat(formData.awayAvgGoalsScored) * 1.5) - parseFloat(formData.awayAvgGoalsConceded) + (awayFormScore * 0.2);
+
+    // Simulate a delay for analysis
     setTimeout(() => {
       const outcomes = [];
-      const totalAvgGoals = parseFloat(formData.homeAvgGoalsScored) + parseFloat(formData.awayAvgGoalsScored);
+      const expectedGoals = parseFloat(formData.homeAvgGoalsScored) + parseFloat(formData.awayAvgGoalsScored);
 
-      if (totalAvgGoals > 2.5) {
-        outcomes.push({ market: 'Total Goals', outcome: 'Over 2.5' });
+      // 1. Predict Over/Under
+      if (expectedGoals > 2.8) {
+        outcomes.push({ market: 'Total Goals', outcome: 'Over 2.5 (High Confidence)' });
+      } else if (expectedGoals > 2.3) {
+        outcomes.push({ market: 'Total Goals', outcome: 'Over 2.5 (Likely)' });
       } else {
         outcomes.push({ market: 'Total Goals', outcome: 'Under 2.5' });
       }
 
-      if (formData.homeAvgGoalsScored > 0.8 && formData.awayAvgGoalsScored > 0.8) {
+      // 2. Predict Both Teams To Score (GG/NG)
+      if (formData.homeAvgGoalsScored >= 1.0 && formData.awayAvgGoalsScored >= 1.0) {
         outcomes.push({ market: 'Both Teams To Score', outcome: 'Yes (GG)' });
-      } else {
+      } else if (formData.homeAvgGoalsScored < 0.6 || formData.awayAvgGoalsScored < 0.6) {
         outcomes.push({ market: 'Both Teams To Score', outcome: 'No (NG)' });
+      } else {
+        outcomes.push({ market: 'Both Teams To Score', outcome: 'Possible, but not certain' });
       }
 
-      if (formData.homeAvgGoalsScored > formData.awayAvgGoalsConceded + 0.5) {
+      // 3. Predict Match Winner
+      const powerDifference = homePower - awayPower;
+      if (powerDifference > 1.0) {
         outcomes.push({ market: 'Match Winner', outcome: `${formData.homeTeam || 'Home Team'} to Win` });
-      } else if (formData.awayAvgGoalsScored > formData.homeAvgGoalsConceded + 0.5) {
+      } else if (powerDifference < -1.0) {
         outcomes.push({ market: 'Match Winner', outcome: `${formData.awayTeam || 'Away Team'} to Win` });
       } else {
-        outcomes.push({ market: 'Match Winner', outcome: 'Draw' });
+        outcomes.push({ market: 'Match Winner', outcome: 'Draw or Close Result' });
       }
 
       setPrediction(outcomes);
       setLoading(false);
-    }, 1000);
+    }, 1500); // Increased delay for "analysis" feel
   };
 
   return (
@@ -59,28 +87,24 @@ export default function CalculatorScreen() {
       <p>Enter offline stats to get a match outcome prediction.</p>
 
       <div className="calculator-form">
-        {/* --- HOME TEAM INPUTS --- */}
         <div className="team-section">
           <h4>Home Team</h4>
           <input placeholder="Home Team Name" value={formData.homeTeam} onChange={(e) => handleChange('homeTeam', e.target.value)} />
           <input type="number" placeholder="Avg. Goals Scored" value={formData.homeAvgGoalsScored} onChange={(e) => handleChange('homeAvgGoalsScored', e.target.value)} />
           <input type="number" placeholder="Avg. Goals Conceded" value={formData.homeAvgGoalsConceded} onChange={(e) => handleChange('homeAvgGoalsConceded', e.target.value)} />
           <input placeholder="Last 5 Form (e.g., WDWLD)" maxLength="5" value={formData.homeLast5Form} onChange={(e) => handleChange('homeLast5Form', e.target.value)} />
-          <input placeholder="Last 5 Goal Totals (e.g., 2,1,3,0,1)" value={formData.homeLast5Goals} onChange={(e) => handleChange('homeLast5Goals', e.target.value)} />
         </div>
 
-        {/* --- AWAY TEAM INPUTS --- */}
         <div className="team-section">
           <h4>Away Team</h4>
           <input placeholder="Away Team Name" value={formData.awayTeam} onChange={(e) => handleChange('awayTeam', e.target.value)} />
           <input type="number" placeholder="Avg. Goals Scored" value={formData.awayAvgGoalsScored} onChange={(e) => handleChange('awayAvgGoalsScored', e.target.value)} />
           <input type="number" placeholder="Avg. Goals Conceded" value={formData.awayAvgGoalsConceded} onChange={(e) => handleChange('awayAvgGoalsConceded', e.target.value)} />
           <input placeholder="Last 5 Form (e.g., WDWLD)" maxLength="5" value={formData.awayLast5Form} onChange={(e) => handleChange('awayLast5Form', e.target.value)} />
-          <input placeholder="Last 5 Goal Totals (e.g., 2,1,3,0,1)" value={formData.awayLast5Goals} onChange={(e) => handleChange('awayLast5Goals', e.target.value)} />
         </div>
       </div>
 
-      <button onClick={getPrediction} disabled={loading} className="button-primary predict-button">
+      <button onClick={getSmarterPrediction} disabled={loading} className="button-primary predict-button">
         {loading ? 'Analyzing...' : 'Predict Match'}
       </button>
 
