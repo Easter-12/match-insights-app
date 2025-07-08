@@ -11,8 +11,8 @@ export default function HistoryScreen() {
       const { data, error } = await supabase
         .from('matches')
         .select('*')
-        .eq('is_completed', true) // Only fetch completed matches
-        .order('kickoff_time', { ascending: false }); // Show most recent first
+        .eq('is_completed', true)
+        .order('kickoff_time', { ascending: false });
 
       if (error) {
         console.error('Error fetching match history:', error);
@@ -21,7 +21,6 @@ export default function HistoryScreen() {
       }
       setLoading(false);
     }
-
     fetchHistory();
   }, []);
 
@@ -38,10 +37,12 @@ export default function HistoryScreen() {
         <div className="match-list-container">
           {matches.map(match => (
             <div key={match.id} className="history-card">
-              <div className="history-card-teams">
-                {match.home_team} vs {match.away_team}
+              <div className="history-card-header">
+                <span className="history-card-teams">{match.home_team} vs {match.away_team}</span>
+                {/* THIS IS THE MISSING DATE */}
+                <span className="history-card-date">{new Date(match.kickoff_time).toLocaleDateString()}</span>
               </div>
-              <div className="history-card-details">
+              <div className="history-card-body">
                 <p>Prediction: <span>{match.prediction_text}</span></p>
                 <p>Final Score: <span>{match.result}</span></p>
               </div>
