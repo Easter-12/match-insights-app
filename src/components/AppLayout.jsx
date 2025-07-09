@@ -18,7 +18,7 @@ export default function AppLayout() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setShowSignOut(false); // Close menu after signing out
+    setShowSignOut(false);
   };
 
   return (
@@ -37,7 +37,7 @@ export default function AppLayout() {
             )}
           </div>
         </header>
-
+        
         <main className="app-content">
           <Routes>
             <Route path="/" element={<HomeScreen />} />
@@ -46,7 +46,6 @@ export default function AppLayout() {
             <Route path="/chat/:otherUserId" element={<ConversationScreen />} />
             <Route path="/vip" element={<VipScreen />} />
             <Route path="/history" element={<HistoryScreen />} />
-            {/* The /profile route is no longer needed */}
           </Routes>
         </main>
 
@@ -58,7 +57,6 @@ export default function AppLayout() {
           <NavLink to="/chat" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>Chat</NavLink>
           <NavLink to="/vip" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>🔥 VIP</NavLink>
           <NavLink to="/history" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>History</NavLink>
-          {/* The "Profile" NavLink has been removed */}
         </nav>
       </div>
     </Router>

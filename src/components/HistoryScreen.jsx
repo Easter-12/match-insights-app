@@ -39,11 +39,11 @@ export default function HistoryScreen() {
             <div key={match.id} className="history-card">
               <div className="history-card-header">
                 <span className="history-card-teams">{match.home_team} vs {match.away_team}</span>
-                {/* THIS IS THE MISSING DATE */}
                 <span className="history-card-date">{new Date(match.kickoff_time).toLocaleDateString()}</span>
               </div>
               <div className="history-card-body">
                 <p>Prediction: <span>{match.prediction_text}</span></p>
+                <p>Odds: <span>{match.odds || 'N/A'}</span></p> {/* <<< THIS LINE IS NEW */}
                 <p>Final Score: <span>{match.result}</span></p>
               </div>
               <div className={`history-card-status status-${match.status?.toLowerCase()}`}>
