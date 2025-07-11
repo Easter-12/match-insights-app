@@ -46,6 +46,8 @@ export default function AppLayout() {
             <Route path="/chat/:otherUserId" element={<ConversationScreen />} />
             <Route path="/vip" element={<VipScreen />} />
             <Route path="/history" element={<HistoryScreen />} />
+            {/* Fallback route for any other path */}
+            <Route path="*" element={<HomeScreen />} />
           </Routes>
         </main>
 
