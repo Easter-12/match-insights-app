@@ -2,15 +2,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient.js';
 
-// This is the NEW content that VIP members will see.
-// It fetches and displays VIP matches and history.
+// This is the content that VIP members will see.
 const VipContent = () => {
   const [vipMatches, setVipMatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchVipMatches() {
-      // The database security rule ensures only VIPs can get this data.
       const { data, error } = await supabase
         .from('vip_matches')
         .select('*')
@@ -82,9 +80,10 @@ const VipContent = () => {
   );
 };
 
-// This is what non-VIP members will see (this part remains the same).
+// This is what non-VIP members will see.
 const SubscribePrompt = ({ onRefresh }) => {
-  const paystackLink = "https://paystack.shop/pay/9dfxn64vz5_test_1752180068225";
+  // The link has been updated with your new LIVE URL.
+  const paystackLink = "https://paystack.shop/pay/c0uehcy59w"; // <-- UPDATED LIVE LINK
 
   return (
     <div className="subscribe-prompt">
